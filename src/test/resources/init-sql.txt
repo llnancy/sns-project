@@ -1,0 +1,60 @@
+CREATE TABLE `user`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键id',
+  `login_name` varchar(12) NOT NULL COMMENT '登录用户名',
+  `nick_name` varchar(16) NOT NULL COMMENT '昵称',
+  `password` varchar(32) NOT NULL COMMENT '登录密码',
+  `salt` varchar(8) NOT NULL COMMENT '混淆盐值',
+  `avatar` varchar(64) NOT NULL COMMENT '头像',
+  `gender` varchar(3) NOT NULL COMMENT '性别',
+  `email` varchar(32) NULL COMMENT '邮箱',
+  `phone_number` varchar(12) NULL COMMENT '手机号',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX(`login_name`) USING BTREE COMMENT '登录用户名唯一',
+  UNIQUE INDEX(`email`) USING BTREE COMMENT '一个邮箱只能绑定一个账号',
+  UNIQUE INDEX(`phone_number`) USING BTREE COMMENT '一个手机号只能绑定一个账号'
+) ENGINE = InnoDB COMMENT = '用户user表';
+
+CREATE TABLE `question`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '自增主键id',
+  `title` varchar(64) NOT NULL COMMENT '问题标题',
+  `content` varchar(255) NOT NULL COMMENT '问题内容',
+  `created_date` datetime(0) NOT NULL COMMENT '问题发布时间',
+  `user_id` int(10) NOT NULL COMMENT '发布用户的id',
+  `comment_count` int(10) NOT NULL DEFAULT 0 COMMENT '评论数量',
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `sns`.`user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE `login_ticket`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '主键自增id',
+  `user_id` int(10) NOT NULL COMMENT '用户id',
+  `ticket` varchar(32) NOT NULL COMMENT '认证ticket',
+  `expired` datetime(0) NOT NULL COMMENT '过期时间',
+  `status` tinyint(1) NULL DEFAULT 0 COMMENT '有效状态（0有效，1无效）',
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX(`ticket`)
+) ENGINE = InnoDB;
+
+CREATE TABLE `comment`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT '评论id',
+  `user_id` int(10) NOT NULL COMMENT '发表评论的user_id',
+  `entity_id` int(10) NOT NULL COMMENT '实体id',
+  `entity_type` int(10) NOT NULL COMMENT '实体类型',
+  `content` varchar(255) NOT NULL COMMENT '评论内容',
+  `created_date` datetime(0) NOT NULL COMMENT '发表时间',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '评论的状态（0：显示，1：隐藏）',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `entity_index`(`entity_id`, `entity_type`) USING BTREE,
+  INDEX `user_id_index`(`user_id`) USING BTREE
+) ENGINE = InnoDB COMMENT = '评论中心';
+
+CREATE TABLE `message`  (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `from_id` int(10) NOT NULL COMMENT '发送者id',
+  `to_id` int(10) NOT NULL COMMENT '接收者id',
+  `content` varchar(255) NOT NULL COMMENT '消息内容',
+  `created_date` datetime(0) NOT NULL COMMENT '消息发送时间',
+  `has_read` tinyint(1) NOT NULL DEFAULT 1 COMMENT '接收者是否已读消息（1：未读，0：已读）',
+  `conversation_id` varchar(15) NOT NULL COMMENT '会话id（发送者和接收者构成一个会话）',
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB COMMENT = '消息中心';
