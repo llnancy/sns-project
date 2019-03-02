@@ -6,6 +6,7 @@ import org.lilu.sns.pojo.Result;
 import org.lilu.sns.pojo.ResultCode;
 import org.lilu.sns.pojo.User;
 import org.lilu.sns.service.UserService;
+import org.lilu.sns.util.CodingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -90,5 +91,20 @@ public class LoginController {
             throw new EntityUpdateException("异常：退出登录失败");
         }
         return Result.info(ResultCode.LOGOUT_SUCCESS);
+    }
+
+    /**
+     * 注册邮箱激活
+     * @param id
+     * @param token
+     * @return
+     */
+    @GetMapping("/auth")
+    public Result auth(@RequestParam("id") String id,@RequestParam("token") String token) {
+        int userId = Integer.valueOf(CodingUtil.base64Decode(id));
+        if (userService.auth(userId,token) != 1) {
+            throw new EntityUpdateException("异常：激活账户异常");
+        }
+        return Result.info(ResultCode.AUTH_SUCCESS);
     }
 }

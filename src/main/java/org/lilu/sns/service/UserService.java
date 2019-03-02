@@ -1,5 +1,8 @@
 package org.lilu.sns.service;
 
+import org.lilu.sns.async.EventModel;
+import org.lilu.sns.async.EventProducer;
+import org.lilu.sns.async.EventType;
 import org.lilu.sns.dao.UserDao;
 import org.lilu.sns.exception.EntityUpdateException;
 import org.lilu.sns.pojo.Result;
@@ -7,9 +10,12 @@ import org.lilu.sns.pojo.ResultCode;
 import org.lilu.sns.pojo.User;
 import org.lilu.sns.util.CodingUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 
@@ -27,6 +33,9 @@ public class UserService {
 
     @Autowired
     private LoginTicketService loginTicketService;
+
+    @Autowired
+    private EventProducer eventProducer;
 
     /**
      * 根据id查询user
@@ -58,6 +67,12 @@ public class UserService {
         if (!CodingUtil.md5(password + user.getSalt()).equals(user.getPassword())) {
             return Result.info(ResultCode.PASSWORD_WRONG);
         }
+        System.out.println(user.getStatus());
+        // 账户未激活
+        if (user.getStatus() == 0) {
+            return Result.info(ResultCode.NOT_AUTH_SUCCESS).put("loginName",user.getLoginName())
+                    .put("email",user.getEmail());
+        }
         // 插入对应user的ticket记录
         // 将ticket和user的信息放到Result中返回给Controller
         return Result.info(ResultCode.LOGIN_SUCCESS)
@@ -84,17 +99,28 @@ public class UserService {
         user.setSalt(UUID.randomUUID().toString().substring(0,8));
         // 带盐加密
         user.setPassword(CodingUtil.md5(user.getPassword() + user.getSalt()));
+        // 设置禁用
+        user.setStatus(0);
+        // 生成邮箱验证token
+        String token = UUID.randomUUID().toString().replaceAll("-","");
+        user.setToken(token);
+        // 设置邮箱验证token过期时间
+        Date date = new Date();
+        // 设置过期时间为24个小时，单位毫秒。
+        date.setTime(date.getTime() + 1000 * 3600 * 24);
+        user.setExpired(date);
         // 执行注册（数据插入）返回的是影响的记录行数，而mybatis已经将Java的user对象中的id属性设置为新增记录的主键id了。
         if (userDao.insert(user) != 1) {
             throw new EntityUpdateException("异常：用户注册异常");
         }
         // 进行邮箱激活操作。。。
-
+        eventProducer.fireEvent(new EventModel(EventType.RegisterMAIL).setExt("userId",CodingUtil.base64Encode(String.valueOf(user.getId())))
+                .setExt("token",token).setExt("email",user.getEmail()));
         /**
          * ......
          */
-
-        return Result.info(ResultCode.REGISTER_SUCCESS);
+        return Result.info(ResultCode.REGISTER_SUCCESS).put("loginName",user.getLoginName())
+                .put("email",user.getEmail());
     }
 
     /**
@@ -134,5 +160,20 @@ public class UserService {
         user.setPassword(null);
         user.setSalt(null);
         return user;
+    }
+
+    /**
+     * 注册邮箱激活服务
+     * @param userId
+     * @param token
+     * @return
+     */
+    public int auth(int userId, String token) {
+        User user = userDao.selectById(userId);
+        // 未注册或token已过期或已激活
+        if (user == null || user.getExpired().before(new Date()) || user.getStatus() != 0) {
+            return 0;
+        }
+        return userDao.auth(userId,token);
     }
 }

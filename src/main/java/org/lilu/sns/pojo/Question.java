@@ -9,18 +9,18 @@ import java.util.Date;
  * @Description: 问题
  */
 public class Question implements Serializable {
-    private Integer id;
+    private int id;
     private String title;
     private String content;
     private Date createdDate;
-    private Integer userId;
-    private Integer commentCount;
+    private int userId;
+    private int commentCount;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -48,19 +48,19 @@ public class Question implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public Integer getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
-    public Integer getCommentCount() {
+    public int getCommentCount() {
         return commentCount;
     }
 
-    public void setCommentCount(Integer commentCount) {
+    public void setCommentCount(int commentCount) {
         this.commentCount = commentCount;
     }
 

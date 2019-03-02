@@ -73,28 +73,25 @@ public class EventConsumer implements InitializingBean, ApplicationContextAware 
         }
         // 开启线程池处理事件
         ExecutorService threadPool = Executors.newCachedThreadPool();
-        threadPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    String eventQueueKey = RedisKeyUtil.getEventQueueKey();
-                    // 从list消息队列中弹出元素
-                    List<String> results = jedisCluster.brpop(0,eventQueueKey);
-                    for (String result : results) {
-                        // 由于redis中brpop命令返回的第一个元素是弹出元素所在键的名称，第二个元素是弹出元素的值。需要过滤键。
-                        if (result.equals(eventQueueKey)) {
-                            // 结束当前循环，进行下一次循环。
-                            continue;
-                        }
-                        // 将从队列中弹出的元素值反序列化成EventModel对象。
-                        EventModel eventModel = JSON.parseObject(result,EventModel.class);
-                        if (!eventConfig.containsKey(eventModel.getEventType())) {
-                            logger.error("从队列中获取了不能识别的事件");
-                            continue;
-                        }
-                        for (EventHandler eventHandler : eventConfig.get(eventModel.getEventType())) {
-                            eventHandler.doEvent(eventModel);
-                        }
+        threadPool.execute( () -> {
+            while (true) {
+                String eventQueueKey = RedisKeyUtil.getEventQueueKey();
+                // 从list消息队列中弹出元素
+                List<String> results = jedisCluster.brpop(0,eventQueueKey);
+                for (String result : results) {
+                    // 由于redis中brpop命令返回的第一个元素是弹出元素所在键的名称，第二个元素是弹出元素的值。需要过滤键。
+                    if (result.equals(eventQueueKey)) {
+                        // 结束当前循环，进行下一次循环。
+                        continue;
+                    }
+                    // 将从队列中弹出的元素值反序列化成EventModel对象。
+                    EventModel eventModel = JSON.parseObject(result,EventModel.class);
+                    if (!eventConfig.containsKey(eventModel.getEventType())) {
+                        logger.error("从队列中获取了不能识别的事件");
+                        continue;
+                    }
+                    for (EventHandler eventHandler : eventConfig.get(eventModel.getEventType())) {
+                        eventHandler.doEvent(eventModel);
                     }
                 }
             }

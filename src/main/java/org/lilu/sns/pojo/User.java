@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Objects;
  * @Description: 用户
  */
 public class User implements Serializable {
-    private Integer id;
+    private int id;
 
     @Pattern(regexp = "(^[a-zA-Z0-9_-]{2,16}$)|(^[\\u2E80-\\u9FFF]{2,8}$)",
             message = "用户名必须是2~8位中文或者2~16位英文和数字组合")
@@ -30,12 +31,18 @@ public class User implements Serializable {
             message = "邮箱格式不正确")
     private String email;
     private String phoneNumber;
+    // user激活状态：1：激活，0：禁用
+    private int status;
+    // 邮箱验证token
+    private String token;
+    // token过期时间
+    private Date expired;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -103,6 +110,30 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getExpired() {
+        return expired;
+    }
+
+    public void setExpired(Date expired) {
+        this.expired = expired;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -115,6 +146,9 @@ public class User implements Serializable {
                 ", gender='" + gender + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", status=" + status +
+                ", token='" + token + '\'' +
+                ", expired=" + expired +
                 '}';
     }
 
@@ -123,7 +157,8 @@ public class User implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) &&
+        return id == user.id &&
+                status == user.status &&
                 Objects.equals(loginName, user.loginName) &&
                 Objects.equals(nickName, user.nickName) &&
                 Objects.equals(password, user.password) &&
@@ -131,11 +166,13 @@ public class User implements Serializable {
                 Objects.equals(avatar, user.avatar) &&
                 Objects.equals(gender, user.gender) &&
                 Objects.equals(email, user.email) &&
-                Objects.equals(phoneNumber, user.phoneNumber);
+                Objects.equals(phoneNumber, user.phoneNumber) &&
+                Objects.equals(token, user.token) &&
+                Objects.equals(expired, user.expired);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, loginName, nickName, password, salt, avatar, gender, email, phoneNumber);
+        return Objects.hash(id, loginName, nickName, password, salt, avatar, gender, email, phoneNumber, status, token, expired);
     }
 }

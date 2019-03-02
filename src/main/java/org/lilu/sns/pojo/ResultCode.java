@@ -20,6 +20,8 @@ public enum ResultCode {
     PASSWORD_WRONG(400,"密码不正确"),
     LOGIN_SUCCESS(200,"登录成功"),
     REGISTER_SUCCESS(200,"注册成功"),
+    AUTH_SUCCESS(200,"激活成功"),
+    NOT_AUTH_SUCCESS(401,"账号未激活"),
 
     LOGIN_EXPIRED(-3,"登录身份已过期，请重新登录"),
     LOGGED_IN(-4,"已经登录，请勿重复登录"),
@@ -35,15 +37,15 @@ public enum ResultCode {
     RESOURCE_NOT_EXIST(404,"资源不存在")
     ;
 
-    private Integer code;
+    private int code;
     private String msg;
 
-    ResultCode(Integer code, String msg) {
+    ResultCode(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
 
-    public Integer getCode() {
+    public int getCode() {
         return code;
     }
 

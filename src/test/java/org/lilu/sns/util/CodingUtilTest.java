@@ -34,14 +34,14 @@ public class CodingUtilTest {
 
     @Test
     public void base64Encode() {
-        String str1 = "123_456";
+        String str1 = "1";
         String str2 = CodingUtil.base64Encode(str1);
         System.out.println(str2);
     }
 
     @Test
     public void base64Decode() {
-        String str1 = "MTIzXzQ1Ng==";
+        String str1 = "MQLL";
         String str2 = CodingUtil.base64Decode(str1);
         System.out.println(str2);
     }

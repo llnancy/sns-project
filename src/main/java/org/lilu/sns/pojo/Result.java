@@ -10,7 +10,7 @@ import java.util.Map;
  * @Description: 统一json返回格式
  */
 public class Result implements Serializable {
-    private Integer code;
+    private int code;
     private String msg;
     private Map<String,Object> data = new HashMap<>();
 
@@ -59,7 +59,7 @@ public class Result implements Serializable {
         return this;
     }
 
-    public Integer getCode() {
+    public int getCode() {
         return code;
     }
 

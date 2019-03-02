@@ -74,7 +74,7 @@ public class QuestionController {
      * @return
      */
     @RequestMapping("/{questionId}")
-    public Result getQuestionById(@PathVariable("questionId") Integer questionId) {
+    public Result getQuestionById(@PathVariable("questionId") int questionId) {
         ViewObject question_info = questionService.selectQuestionById(questionId);
         if (question_info.get("question") == null) {
             return Result.info(ResultCode.RESOURCE_NOT_EXIST);

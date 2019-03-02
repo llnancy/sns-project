@@ -48,7 +48,7 @@ public class CodingUtil {
     public static String base64Encode(String str) {
         try {
             Base64.Encoder encoder = Base64.getEncoder();
-            return encoder.encodeToString(str.getBytes("UTF-8"));
+            return encoder.encodeToString(str.getBytes("UTF-8")).replaceAll("=","L");
         } catch (Exception e) {
             logger.error("base64编码失败：",e);
             return null;
@@ -63,7 +63,7 @@ public class CodingUtil {
     public static String base64Decode(String str) {
         try {
             Base64.Decoder decoder = Base64.getDecoder();
-            return new String(decoder.decode(str),"UTF-8");
+            return new String(decoder.decode(str.replaceAll("L","=")),"UTF-8");
         } catch (Exception e) {
             logger.error("base64解码失败：",e);
             return null;

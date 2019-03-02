@@ -11,35 +11,35 @@ import java.util.Date;
  * @Description: 消息中心
  */
 public class Message implements Serializable {
-    private Integer id;
-    private Integer fromId;
-    private Integer toId;
+    private int id;
+    private int fromId;
+    private int toId;
     private String content;
     private Date createdDate;
-    private Integer hasRead;
+    private int hasRead;
     private String conversationId;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Integer getFromId() {
+    public int getFromId() {
         return fromId;
     }
 
-    public void setFromId(Integer fromId) {
+    public void setFromId(int fromId) {
         this.fromId = fromId;
     }
 
-    public Integer getToId() {
+    public int getToId() {
         return toId;
     }
 
-    public void setToId(Integer toId) {
+    public void setToId(int toId) {
         this.toId = toId;
     }
 
@@ -59,11 +59,11 @@ public class Message implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public Integer getHasRead() {
+    public int getHasRead() {
         return hasRead;
     }
 
-    public void setHasRead(Integer hasRead) {
+    public void setHasRead(int hasRead) {
         this.hasRead = hasRead;
     }
 

@@ -36,7 +36,7 @@ public class LoginTicketService {
             loginTicket.setUserId(userId);
             loginTicket.setTicket(UUID.randomUUID().toString().replaceAll("-",""));
             Date date = new Date();
-            // 设置过期时间为1个小时，单位毫秒。
+            // 设置过期时间为24个小时，单位毫秒。
             date.setTime(date.getTime() + 1000 * 3600 * 24);
             loginTicket.setExpired(date);
             loginTicket.setStatus(0);

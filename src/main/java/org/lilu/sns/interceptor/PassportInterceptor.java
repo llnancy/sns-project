@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @Auther: lilu
  * @Date: 2019/1/26
- * @Description:
+ * @Description: 登录认证拦截器
  */
 @Component
 public class PassportInterceptor implements HandlerInterceptor {

@@ -46,8 +46,8 @@ public class LikeHandler implements EventHandler {
         User user = userService.selectUserById(eventModel.getActorId());
         message.setContent("用户 " + user.getLoginName() + "（"
                 + user.getEmail() + "）赞了你的评论，http://"
-                + environment.getProperty("spring.address") + ":"
-                + environment.getProperty("spring.port")
+                + environment.getProperty("server.address") + ":"
+                + environment.getProperty("server.port")
                 + "/question/" + eventModel.getExt("questionId"));
         messageService.insertMessage(message);
     }

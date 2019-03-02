@@ -1,9 +1,6 @@
 package org.lilu.sns.dao;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.lilu.sns.pojo.User;
 
 /**
@@ -21,7 +18,7 @@ public interface UserDao {
     /**
      * 待插入字段名
      */
-    String INSERT_FIELDS = " login_name,nick_name,password,salt,avatar,gender,email,phone_number ";
+    String INSERT_FIELDS = " login_name,nick_name,password,salt,avatar,gender,email,phone_number,status,token,expired ";
 
     /**
      * 待查询字段名
@@ -34,7 +31,7 @@ public interface UserDao {
      * @return
      */
     @Insert({"insert into " + TABLE_NAME + " ( " + INSERT_FIELDS +
-            " ) values(#{loginName},#{nickName},#{password},#{salt},#{avatar},#{gender},#{email},#{phoneNumber})"})
+            " ) values(#{loginName},#{nickName},#{password},#{salt},#{avatar},#{gender},#{email},#{phoneNumber},#{status},#{token},#{expired}) "})
     @Options(useGeneratedKeys = true)
     int insert(User user);
 
@@ -61,4 +58,13 @@ public interface UserDao {
      */
     @Select({"select ",SELECT_FIELDS," from ",TABLE_NAME," where email=#{email}"})
     User selectByEmail(String email);
+
+    /**
+     * 激活注册邮箱
+     * @param userId
+     * @param token
+     * @return
+     */
+    @Update({"update ",TABLE_NAME," set status=1 where id=#{userId} and token=#{token}"})
+    int auth(@Param("userId") int userId, @Param("token") String token);
 }
