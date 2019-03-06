@@ -3,14 +3,14 @@ package org.lilu.sns.web.controller;
 import org.hibernate.validator.constraints.Length;
 import org.lilu.sns.exception.EntityUpdateException;
 import org.lilu.sns.pojo.*;
-import org.lilu.sns.service.CommentService;
-import org.lilu.sns.service.LikeService;
-import org.lilu.sns.service.QuestionService;
+import org.lilu.sns.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Auther: lilu
@@ -30,6 +30,12 @@ public class QuestionController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private FollowService followService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 获取全部最新问题
@@ -69,7 +75,7 @@ public class QuestionController {
     }
 
     /**
-     * 根据questionId获取问题详细信息（包含问题的评论详细信息）
+     * 根据questionId获取问题详细信息（包含问题的评论详细信息，关注该问题的用户信息等）
      * @param questionId
      * @return
      */
@@ -79,7 +85,18 @@ public class QuestionController {
         if (question_info.get("question") == null) {
             return Result.info(ResultCode.RESOURCE_NOT_EXIST);
         }
+        int followStatus = 0;
+        User loginUser = hostHolder.getUser();
+        if (loginUser != null) {
+            // 登录的情况下才查询是否登录用户是否关注了该问题，followStatus为1表示关注了，为0表示未关注，默认为0。
+            followStatus = followService.isFollower(loginUser.getId(),questionId,EntityType.ENTITY_QUESTION) ? 1 : 0;
+        }
+        // 获取最新关注该问题的10个用户
+        List<User> users = questionService.getFollowersUser(questionId);
         return Result.success().put("question_info",question_info)
+                .put("follow_status",followStatus)
+                .put("follower_count",followService.getFollowerCount(questionId,EntityType.ENTITY_QUESTION))
+                .put("follower_users",users)
                 .put("comments_info",commentService.selectCommentsByEntity(questionId, EntityType.ENTITY_QUESTION));
     }
 }

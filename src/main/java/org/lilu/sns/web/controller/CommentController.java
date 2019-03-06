@@ -34,9 +34,9 @@ public class CommentController {
     private QuestionService questionService;
 
     /**
-     * 添加一条评论
-     * @param questionId
-     * @param content
+     * 用户发表评论
+     * @param questionId 问题id
+     * @param content 评论内容
      * @return
      */
     @PostMapping

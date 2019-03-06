@@ -22,9 +22,19 @@ public class RedisKeyUtil {
     private static final String BIZ_DISLIKE = "DISLIKE";
 
     /**
-     * 事件队列：有序集合实现
+     * 事件队列：redis的list实现
      */
     private static final String BIZ_EVENTQUEUE = "EVENT_QUEUE";
+
+    /**
+     * 粉丝
+     */
+    private static final String BIZ_FOLLOWER = "FOLLOWER";
+
+    /**
+     * 关注对象
+     */
+    private static final String BIZ_FOLLOWEE = "FOLLOWEE";
 
     /**
      * 生成点赞的key
@@ -52,5 +62,25 @@ public class RedisKeyUtil {
      */
     public static String getEventQueueKey() {
         return BIZ_EVENTQUEUE;
+    }
+
+    /**
+     * 获取某个实体的粉丝key
+     * @param entityId 实体id
+     * @param entityType 实体类型
+     * @return
+     */
+    public static String getFollowerKey(int entityId,int entityType) {
+        return BIZ_FOLLOWER + SPLIT + entityType + SPLIT + entityId;
+    }
+
+    /**
+     * 获取某个用户对某个实体的关注key
+     * @param userId
+     * @param entityType
+     * @return
+     */
+    public static String getFolloweeKey(int userId,int entityType) {
+        return BIZ_FOLLOWEE + SPLIT + userId + SPLIT + entityType;
     }
 }

@@ -4,6 +4,7 @@ import org.lilu.sns.async.EventHandler;
 import org.lilu.sns.async.EventModel;
 import org.lilu.sns.async.EventType;
 import org.lilu.sns.async.handler.common.HandlerUtil;
+import org.lilu.sns.pojo.EntityType;
 import org.lilu.sns.pojo.Message;
 import org.lilu.sns.pojo.User;
 import org.lilu.sns.service.MessageService;
@@ -19,11 +20,11 @@ import java.util.List;
 
 /**
  * @Auther: lilu
- * @Date: 2019/2/21
- * @Description: 点赞事件处理器。
+ * @Date: 2019/3/6
+ * @Description: 关注服务处理器
  */
 @Component
-public class LikeHandler implements EventHandler {
+public class FollowHandler implements EventHandler {
     @Autowired
     private MessageService messageService;
 
@@ -34,23 +35,31 @@ public class LikeHandler implements EventHandler {
     private Environment environment;
 
     /**
-     * 点赞事件发生，给被点赞用户发送一条站内信。
+     * 关注服务系统站内信通知
      * @param eventModel
      */
     @Override
     public void doEvent(EventModel eventModel) {
         Message message = HandlerUtil.buildBaseMessage(eventModel);
         User user = userService.selectUserById(eventModel.getActorId());
-        message.setContent("用户 " + user.getLoginName() + "（"
-                + user.getEmail() + "）赞了你的评论，http://"
-                + environment.getProperty("server.address") + ":"
-                + environment.getProperty("server.port")
-                + "/question/" + eventModel.getExt("questionId"));
+        if (eventModel.getEntityType() == EntityType.ENTITY_QUESTION) {
+            message.setContent("用户 " + user.getLoginName() + "（"
+                    + user.getEmail() + "）关注了你的问题，http://"
+                    + environment.getProperty("server.address") + ":"
+                    + environment.getProperty("server.port")
+                    + "/question/" + eventModel.getEntityId());
+        } else if (eventModel.getEntityType() == EntityType.ENTITY_USER) {
+            message.setContent("用户 " + user.getLoginName() + "（"
+                    + user.getEmail() + "）关注了你，http://"
+                    + environment.getProperty("server.address") + ":"
+                    + environment.getProperty("server.port")
+                    + "/user/" + eventModel.getActorId());
+        }
         messageService.insertMessage(message);
     }
 
     @Override
     public List<EventType> getSupportEventTypes() {
-        return Arrays.asList(EventType.LIKE);
+        return Arrays.asList(EventType.FOLLOW);
     }
 }

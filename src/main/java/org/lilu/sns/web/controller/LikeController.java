@@ -44,13 +44,17 @@ public class LikeController {
             return Result.info(ResultCode.NOT_LOGGED_IN);
         }
         Comment comment = commentService.selectCommentById(commentId);
-        // 生产点赞事件
-        eventProducer.fireEvent(new EventModel(EventType.LIKE)
-                .setActorId(loginUser.getId())
-                .setEntityId(commentId)
-                .setEntityType(EntityType.ENTITY_COMMENT)
-                .setOwnerId(comment.getUserId())
-                .setExt("questionId",String.valueOf(comment.getEntityId())));
+        // 当前既未点赞又未点踩则发送点赞事件。
+        // 用户可能发生多次点赞点踩，取消点赞点踩，这样就会导致发送多次站内信，如果用户无限恶意点击，如何防止？？
+        if (hasLiked == 0) {
+            // 生产点赞事件
+            eventProducer.fireEvent(new EventModel(EventType.LIKE)
+                    .setActorId(loginUser.getId())
+                    .setEntityId(commentId)
+                    .setEntityType(EntityType.ENTITY_COMMENT)
+                    .setOwnerId(comment.getUserId())
+                    .setExt("questionId",String.valueOf(comment.getEntityId())));
+        }
         return Result.success().put("like_count",likeService.like(loginUser.getId(),commentId,EntityType.ENTITY_COMMENT,hasLiked))
                 .put("like_status",likeService.getLikeStatus(loginUser.getId(),commentId,EntityType.ENTITY_COMMENT));
     }

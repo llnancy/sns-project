@@ -60,6 +60,7 @@ public class MyExceptionHandler {
     @ResponseStatus(HttpStatus.OK)
     public Result handleException(Exception e) {
         logger.error("异常：" + e.getMessage());
+        e.printStackTrace();
         return Result.info(ResultCode.SYSTEM_ERROR);
     }
 }

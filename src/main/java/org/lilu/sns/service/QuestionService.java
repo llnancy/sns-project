@@ -1,6 +1,7 @@
 package org.lilu.sns.service;
 
 import org.lilu.sns.dao.QuestionDao;
+import org.lilu.sns.pojo.EntityType;
 import org.lilu.sns.pojo.Question;
 import org.lilu.sns.pojo.User;
 import org.lilu.sns.pojo.ViewObject;
@@ -27,10 +28,13 @@ public class QuestionService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private FollowService  followService;
+
     /**
      * 查询最新问题
-     * @param userId
-     * @return
+     * @param userId 用户id
+     * @return vo的集合
      */
     public List<ViewObject> selectLatestQuestions(int userId) {
         List<Question> questions = questionDao.selectLatestQuestions(userId);
@@ -44,8 +48,8 @@ public class QuestionService {
 
     /**
      * 添加一个问题
-     * @param question
-     * @return
+     * @param question 问题
+     * @return 添加的问题数量
      */
     public int insertQuestion(Question question) {
         // 过滤HTML标签
@@ -59,17 +63,26 @@ public class QuestionService {
 
     /**
      * 根据id获取question详细（包含user）信息
-     * @param questionId
-     * @return
+     * @param questionId 问题id
+     * @return vo
      */
     public ViewObject selectQuestionById(int questionId) {
         return getQuestionDetail(questionDao.selectById(questionId));
     }
 
     /**
+     * 根据id获取question信息（不包含其它user信息）
+     * @param questionId 问题id
+     * @return 问题
+     */
+    public Question selectQuestionByQuestionId(int questionId) {
+        return questionDao.selectById(questionId);
+    }
+
+    /**
      * 提取公共方法：传入一个question，返回一个包含question和user的ViewObject
-     * @param question
-     * @return
+     * @param question 问题
+     * @return vo
      */
     public ViewObject getQuestionDetail(Question question) {
         ViewObject vo = new ViewObject();
@@ -83,11 +96,27 @@ public class QuestionService {
 
     /**
      * 更新问题的评论数量
-     * @param entityId
-     * @param count
-     * @return
+     * @param entityId 实体id
+     * @param count 评论数量
+     * @return 数据库中影响的记录行数
      */
     public int updateCommentCount(int entityId, int count) {
         return questionDao.updateCommentCount(entityId,count);
+    }
+
+    /**
+     * 获取最近关注该问题的10个用户
+     * @param questionId 问题id
+     * @return 用户集合
+     */
+    public List<User> getFollowersUser(int questionId) {
+        List<User> users = new ArrayList<>();
+        // 获取关注该问题的最新的前10个用户的id组
+        List<Integer> userIds = followService.getFollowers(questionId, EntityType.ENTITY_QUESTION,10);
+        // 遍历获取用户加入集合中
+        for (Integer userId : userIds) {
+            users.add(userService.selectUserById(userId));
+        }
+        return users;
     }
 }

@@ -76,17 +76,6 @@ public class MessageController {
     @GetMapping("/conversation/{conversationId}")
     @Transactional
     public Result getConversationDetail(@PathVariable("conversationId") String conversationId) {
-//        try {
-//            if (hostHolder.getUser() == null) {
-//                return Result.info(ResultCode.NOT_LOGGED_IN);
-//            } else {
-//                // 应该控制事务
-//                return Result.success().put("messages_info",messageService.selectConversationDetail(conversationId));
-//            }
-//        } catch (Exception e) {
-//            logger.error("获取消息会话详细信息失败-->" + e.getMessage());
-//            return Result.fail().put("error","获取消息会话详细信息失败");
-//        }
         if (hostHolder.getUser() == null) {
             return Result.info(ResultCode.NOT_LOGGED_IN);
         } else {
@@ -123,20 +112,11 @@ public class MessageController {
      */
     @GetMapping("/conversation")
     public Result getConversationList() {
-//        try {
-//            if (hostHolder.getUser() == null) {
-//                return Result.info(ResultCode.NOT_LOGGED_IN);
-//            } else {
-//                return Result.success().put("conversations_info",messageService.selectConversationList(hostHolder.getUser().getId()));
-//            }
-//        } catch (Exception e) {
-//            logger.error("获取消息会话列表失败");
-//            return Result.fail().put("error","获取消息会话列表信息失败");
-//        }
-        if (hostHolder.getUser() == null) {
+        User user = hostHolder.getUser();
+        if (user == null) {
             return Result.info(ResultCode.NOT_LOGGED_IN);
         } else {
-            return Result.success().put("conversations_info",messageService.selectConversationList(hostHolder.getUser().getId()));
+            return Result.success().put("conversations_info",messageService.selectConversationList(user.getId()));
         }
     }
 }

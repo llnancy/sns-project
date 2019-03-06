@@ -8,7 +8,9 @@ package org.lilu.sns.async;
 public enum EventType {
     LIKE("LIKE"),
     COMMENT("COMMENT"),
-    RegisterMAIL("RegisterMAIL")
+    RegisterMAIL("RegisterMAIL"),
+    FOLLOW("FOLLOW"),
+    UNFOLLOW("UNFOLLOW")
     ;
     private String eventName;
     EventType(String eventName) {

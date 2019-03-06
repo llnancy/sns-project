@@ -8,8 +8,11 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Transaction;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther: lilu
@@ -66,7 +69,7 @@ public class JedisAdapter implements InitializingBean {
     }
 
     /**
-     * 从左侧向list中插入元素
+     * 从左侧向list指定key中插入元素
      * @param key
      * @param value
      * @return
@@ -87,7 +90,7 @@ public class JedisAdapter implements InitializingBean {
     }
 
     /**
-     * 从set集合中删除元素
+     * 从set集合指定key中删除元素
      * @param key
      * @param value
      * @return
@@ -108,7 +111,7 @@ public class JedisAdapter implements InitializingBean {
     }
 
     /**
-     * 向set集合中添加元素
+     * 向set集合指定key中添加元素
      * @param key
      * @param value
      * @return
@@ -129,7 +132,7 @@ public class JedisAdapter implements InitializingBean {
     }
 
     /**
-     * 获取set集合中元素个数
+     * 获取set集合指定key中元素个数
      * @param key
      * @return
      */
@@ -149,7 +152,7 @@ public class JedisAdapter implements InitializingBean {
     }
 
     /**
-     * 判断set集合中元素是否存在
+     * 判断set集合指定key中元素是否存在
      * @param key
      * @param value
      * @return
@@ -167,5 +170,121 @@ public class JedisAdapter implements InitializingBean {
             }
         }
         return false;
+    }
+
+    /**
+     * zset指定key中从高到低范围查询
+     * @param key
+     * @param start
+     * @param end
+     * @return
+     */
+    public Set<String> zrevrange(String key,int start,int end) {
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            return jedis.zrevrange(key,start,end);
+        } catch (Exception e) {
+            logger.error("JedisAdapter:zrevrange异常:" + e.getMessage());
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取zset集合中指定key的元素个数
+     * @param key
+     * @return
+     */
+    public long zcard(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            return jedis.zcard(key);
+        } catch (Exception e) {
+            logger.error("JedisAdapter:zcard异常:" + e.getMessage());
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * 获取zset集合中指定key的元素的分数
+     * @param key
+     * @param member
+     * @return
+     */
+    public Double zscore(String key,String member) {
+        Jedis jedis = null;
+        try {
+            jedis = pool.getResource();
+            return jedis.zscore(key, member);
+        } catch (Exception e) {
+            logger.error("JedisAdapter:zscore异常:" + e.getMessage());
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取jedis连接对象
+     * @return
+     */
+    public Jedis getJedis() {
+        return pool.getResource();
+    }
+
+    /**
+     * 开启事务
+     * @param jedis jedis连接对象
+     * @return
+     */
+    public Transaction multi(Jedis jedis) {
+        try {
+            return jedis.multi();
+        } catch (Exception e) {
+            logger.error("JedisAdapter:multi异常:" + e.getMessage());
+        } finally {
+            // todo
+        }
+        return null;
+    }
+
+    /**
+     * 提交事务
+     * @param tx
+     * @param jedis
+     * @return
+     */
+    public List<Object> exec(Transaction tx, Jedis jedis) {
+        try {
+            // 提交事务
+            return tx.exec();
+        } catch (Exception e) {
+            logger.error("JedisAdapter:exec异常:" + e.getMessage());
+            tx.discard();
+        } finally {
+            if (tx != null) {
+                try {
+                    tx.close();
+                } catch (IOException e) {
+                    logger.error("JedisAdapter:exec:Transaction关闭异常:" + e.getMessage());
+                }
+            }
+            // 释放jedis连接
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+        return null;
     }
 }

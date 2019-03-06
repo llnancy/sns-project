@@ -77,7 +77,7 @@ public interface MessageDao {
      */
     @Select({"select count(id) as id, ",INSERT_FIELDS," from ",
             " (select ",SELECT_FIELDS," from ",TABLE_NAME,
-            " where (from_id=#{localUserId} or to_id=#{localUserId}) and order by created_date desc limit 0, 18446744073709551615) as m ",
+            " where from_id!=0 and (from_id=#{localUserId} or to_id=#{localUserId}) order by created_date desc limit 0, 18446744073709551615) as m ",
             " group by conversation_id order by created_date desc "})
     List<Message> selectConversationList(@Param("localUserId") int localUserId);
 
