@@ -1,6 +1,7 @@
 package org.lilu.sns.async;
 
 import com.alibaba.fastjson.JSON;
+import org.lilu.sns.util.JedisAdapter;
 import org.lilu.sns.util.RedisKeyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.JedisCluster;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class EventConsumer implements InitializingBean, ApplicationContextAware 
     private ApplicationContext applicationContext;
 
     @Autowired
-    private JedisCluster jedisCluster;
+    private JedisAdapter jedisAdapter;
 
     /**
      * 实现InitializingBean接口初始化bean。
@@ -77,7 +77,7 @@ public class EventConsumer implements InitializingBean, ApplicationContextAware 
             while (true) {
                 String eventQueueKey = RedisKeyUtil.getEventQueueKey();
                 // 从list消息队列中弹出元素
-                List<String> results = jedisCluster.brpop(0,eventQueueKey);
+                List<String> results = jedisAdapter.brpop(0,eventQueueKey);
                 for (String result : results) {
                     // 由于redis中brpop命令返回的第一个元素是弹出元素所在键的名称，第二个元素是弹出元素的值。需要过滤键。
                     if (result.equals(eventQueueKey)) {
