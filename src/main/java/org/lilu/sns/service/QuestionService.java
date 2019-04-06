@@ -1,10 +1,7 @@
 package org.lilu.sns.service;
 
 import org.lilu.sns.dao.QuestionDao;
-import org.lilu.sns.pojo.EntityType;
-import org.lilu.sns.pojo.Question;
-import org.lilu.sns.pojo.User;
-import org.lilu.sns.pojo.ViewObject;
+import org.lilu.sns.pojo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
@@ -115,7 +112,7 @@ public class QuestionService {
         List<Integer> userIds = followService.getFollowers(questionId, EntityType.ENTITY_QUESTION,10);
         // 遍历获取用户加入集合中
         for (Integer userId : userIds) {
-            users.add(userService.selectUserById(userId));
+            users.add(userService.removeSensitiveFields(userService.selectUserById(userId)));
         }
         return users;
     }

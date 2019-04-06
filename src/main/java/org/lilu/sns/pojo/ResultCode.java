@@ -25,7 +25,7 @@ public enum ResultCode {
 
     LOGIN_EXPIRED(-3,"登录身份已过期，请重新登录"),
     LOGGED_IN(-4,"已经登录，请勿重复登录"),
-    NOT_LOGGED_IN(-3,"该接口需登录才能访问，请先登录"),
+    NOT_LOGGED_IN(-3,"未登录，请先登录"),
 
     QUESTION_ADD_SUCCESS(200,"问题发布成功"),
     COMMENT_ADD_SUCCESS(200,"评论发表成功"),

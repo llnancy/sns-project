@@ -142,10 +142,10 @@ public class FollowService {
      * @param userId 用户id
      * @param entityId 实体id
      * @param entityType 实体类型
-     * @return 关注了该实体则返回true，否则返回false
+     * @return 关注了该实体则返回1，否则返回0
      */
-    public boolean isFollower(int userId,int entityId,int entityType) {
+    public int isFollower(int userId,int entityId,int entityType) {
         String followerKey = RedisKeyUtil.getFollowerKey(entityId,entityType);
-        return jedisAdapter.zscore(followerKey,String.valueOf(userId)) != null;
+        return jedisAdapter.zscore(followerKey,String.valueOf(userId)) != null ? 1 : 0;
     }
 }
